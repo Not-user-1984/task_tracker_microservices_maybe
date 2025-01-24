@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from teams.models import Team, OrganizationalStructure, News
+from teams.models import Team, Organization, News
 
 
 class TeamSerializer(serializers.ModelSerializer):
@@ -10,7 +10,7 @@ class TeamSerializer(serializers.ModelSerializer):
 
 class OrganizationalStructureSerializer(serializers.ModelSerializer):
     class Meta:
-        model = OrganizationalStructure
+        model = Organization
         fields = ["id", "team", "user", "role", "manager"]
 
 

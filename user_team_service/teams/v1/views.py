@@ -1,5 +1,5 @@
 from rest_framework import generics, permissions
-from teams.models import Team, OrganizationalStructure, News
+from teams.models import Team, Organization, News
 from .serializers import (
     TeamSerializer,
     OrganizationalStructureSerializer,
@@ -20,15 +20,14 @@ class TeamDetailView(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
 
-# Управление организационной структурой
 class OrganizationalStructureCreateView(generics.CreateAPIView):
-    queryset = OrganizationalStructure.objects.all()
+    queryset = Organization.objects.all()
     serializer_class = OrganizationalStructureSerializer
     permission_classes = [permissions.IsAdminUser]
 
 
 class OrganizationalStructureDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = OrganizationalStructure.objects.all()
+    queryset = Organization.objects.all()
     serializer_class = OrganizationalStructureSerializer
     permission_classes = [permissions.IsAuthenticated]
 
