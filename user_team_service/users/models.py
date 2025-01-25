@@ -15,7 +15,9 @@ class User(AbstractUser):
     team = models.ForeignKey(
         "teams.Team", on_delete=models.SET_NULL, null=True, blank=True
     )
-    role = models.CharField(max_length=10, choices=STATUS_CHOICES, default='employee', verbose_name="Роль")
+    role = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default="employee", verbose_name="Роль"
+    )
     organization = models.ForeignKey(
         "teams.Organization",
         on_delete=models.SET_NULL,

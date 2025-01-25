@@ -2,11 +2,6 @@ from django.db import models
 from users.models import User
 
 
-from teams.kafka_producer import (
-    kafka_producer,
-)  # Импортируем модель User из приложения users
-
-
 class Organization(models.Model):
     """
     Модель организации.
@@ -94,6 +89,22 @@ class UserAssignment(models.Model):
         related_name="assignments",
         verbose_name="Команда",
     )
+
+    user_oid = models.UUIDField(editable=False, null=True)
+    project_name = models.CharField(max_length=255, editable=False, null=True)
+    team_name = models.CharField(max_length=255, editable=False, null=True, blank=True)
+    user_email = models.CharField(max_length=255, editable=False, null=True, blank=True)
+    user_name = models.CharField(max_length=255, editable=False, null=True, blank=True)
+    user_role = models.CharField(max_length=10, editable=False, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        self.user_oid = self.user.oid
+        self.project_name = self.project.name
+        self.team_name = self.team.name if self.team else None
+        self.user_email = self.user.email
+        self.user_name = self.user.username
+        self.user_role = self.user.role
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.user.username} -> {self.project.name} ({self.team.name if self.team else 'без команды'})"
