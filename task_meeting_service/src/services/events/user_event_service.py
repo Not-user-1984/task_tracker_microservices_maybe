@@ -2,9 +2,10 @@ import logging
 from typing import Dict, Any
 
 from src.schemas.user_events import UserEventSchemas
+from src.core.abstractions.message_handler import MessageHandler
 
 
-class UserEventService:
+class UserEventService(MessageHandler):
     def __init__(self, logger):
         self.logger = logger
 

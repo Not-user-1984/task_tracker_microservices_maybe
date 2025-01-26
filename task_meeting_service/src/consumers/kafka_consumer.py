@@ -4,7 +4,7 @@ import logging
 from typing import List, Dict, Any, Optional, Set
 from aiokafka import AIOKafkaConsumer, ConsumerRecord
 from src.schemas.user_events import UserEventSchemas
-from src.services.user_assignment_service import UserEventService
+from task_meeting_service.src.services.events.user_event_service import UserEventService
 
 
 class KafkaConsumerService:
@@ -147,9 +147,13 @@ class KafkaConsumerService:
 
             operation = payload.get("__op")
             if operation == "c":
-                await self.user_assignment_service.handle_creation(user_assignment)
+                await self.user_assignment_service.handle_creation(
+                    user_assignment
+                )
             elif operation == "u":
-                await self.user_assignment_service.handle_update(user_assignment)
+                await self.user_assignment_service.handle_update(
+                    user_assignment
+                )
         except Exception as e:
             self.logger.error(f"Ошибка обработки сообщения: {e}")
 

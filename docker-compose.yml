@@ -71,7 +71,6 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-
     ports:
       - "5432:5432"
     volumes:
@@ -82,7 +81,24 @@ services:
     env_file:
       - ./user_team_service/.env
     networks:
-      - my_network  
+      - my_network
+
+  db_task:
+    image: postgres:latest
+    container_name: db_task
+    restart: always
+    environment:
+      POSTGRES_DB: task
+      POSTGRES_USER: task_user
+      POSTGRES_PASSWORD: task_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data_task:/var/lib/postgresql/data
+    env_file:
+      - ./task_meeting_service/.env
+    networks:
+      - my_network
 
   # redis:
   #   image: redis:latest
@@ -111,7 +127,7 @@ services:
     #   - db
     #   - redis
     env_file:
-      - .env
+      - ./user_team_service/.env
       
     networks:
       - my_network
@@ -127,7 +143,7 @@ services:
       - db_django
       - kafka
     env_file:
-      - .env
+      - ./task_meeting_service/.env
     networks:
       - my_network
 
@@ -151,4 +167,5 @@ networks:
 
 volumes:
   postgres_data:
+  postgres_data_task:
   # redis_data:

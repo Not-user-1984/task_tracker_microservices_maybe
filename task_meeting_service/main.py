@@ -2,7 +2,9 @@ import logging
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 import asyncio
-from src.consumers.kafka_consumer import KafkaConsumerService
+from src.services.events.consumer_service import MessageConsumerService
+from src.handlers.events.user_event_handler import UserEventHandler
+from src.consumers.aiokafka.factories import create_kafka_consumer
 
 logging.basicConfig(
     level=logging.INFO,
@@ -11,12 +13,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI()
-kafka_consumer_service = KafkaConsumerService(
-    topic="django_db.public.teams_userassignment",
-    bootstrap_servers="kafka:9092",
-    group_id="user-assignments-group",
-    logger=logger,
-)
+
+
+consumer = create_kafka_consumer()
+handler = UserEventHandler(logger)
+kafka_consumer_service = MessageConsumerService(consumer, handler, logger)
 
 
 @app.on_event("startup")
@@ -29,11 +30,11 @@ async def startup_event():
 async def shutdown_event():
     logger.info("Остановка Kafka Consumer...")
     try:
-        await asyncio.wait_for(kafka_consumer_service.stop(), timeout=10.0)
+        await kafka_consumer_service.stop()
     except asyncio.TimeoutError:
         logger.error("Не удалось остановить Kafka Consumer в течение 10 секунд")
 
-# Базовый эндпоинт для проверки работоспособности
+
 @app.get("/task/")
 def read_root():
     return JSONResponse(content=kafka_consumer_service.get_messages())
