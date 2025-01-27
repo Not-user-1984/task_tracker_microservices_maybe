@@ -39,7 +39,7 @@ clean:
 # Запуск миграций Django
 migrate:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) exec $(SERVICE_NAME) python manage.py migrate
-makemigrate:
+makemigrations:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) exec $(SERVICE_NAME) python manage.py makemigrations
 
 # Создание суперпользователя Django

@@ -2,13 +2,15 @@ import logging
 from typing import Any, Dict, Set
 from src.schemas.user_events import UserEventSchemas
 from src.services.events.user_event_service import UserEventService
+from src.database.db import DatabaseSessionManager
+
 # from task_meeting_service.src.services.events.message_handler import MessageHandler
 
 
-class UserEventHandler():
-    def __init__(self, logger: logging.Logger):
+class UserEventHandler:
+    def __init__(self, logger: logging.Logger, db_manager: DatabaseSessionManager):
         self.logger = logger
-        self.user_event_service = UserEventService(logger)
+        self.user_event_service = UserEventService(logger, db_manager)
 
     async def handle_message(self, message: Dict[str, Any]) -> None:
         try:

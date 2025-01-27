@@ -11,6 +11,7 @@ class UserEventSchemas(BaseModel):
     team_name: Optional[str] = None
     user_role: Optional[str] = None
     user_oid: Optional[str] = None
+    project_oid: Optional[str] = None
     user_email: Optional[str] = None
     user_name: Optional[str] = None
     deleted: Optional[str] = Field(None, alias="__deleted")
