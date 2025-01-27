@@ -15,6 +15,7 @@ async def create_tables(db):
             CREATE TABLE IF NOT EXISTS projects (
                 id SERIAL PRIMARY KEY,
                 project_name VARCHAR(100) UNIQUE NOT NULL,
+                project_oid VARCHAR(50) UNIQUE NOT NULL,
                 status VARCHAR(20) NOT NULL,
                 description TEXT,
                 release_date TIMESTAMP,
