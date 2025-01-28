@@ -28,9 +28,11 @@ class UserEventHandler:
 
             operation = message.get("__op")
             if operation == "c":
+                self.logger.info(f"Создание обьекта: {user_assignment.user_oid}")
                 await self.user_event_service.handle_creation(user_assignment)
             elif operation == "u":
                 await self.user_event_service.handle_update(user_assignment)
+                self.logger.info(f"обновление обьекта: {user_assignment.user_oid}")
         except Exception as e:
             self.logger.error(f"Ошибка обработки сообщения: {e}")
 

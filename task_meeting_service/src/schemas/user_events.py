@@ -9,6 +9,7 @@ class UserEventSchemas(BaseModel):
     user_id: int
     project_name: Optional[str] = None
     team_name: Optional[str] = None
+    team_oid: Optional[str] = None
     user_role: Optional[str] = None
     user_oid: Optional[str] = None
     project_oid: Optional[str] = None

@@ -62,6 +62,10 @@ ps:
 prune:
 	docker system prune -f
 
+# Настройка Debezium Connector
+setup-connector:
+	docker-compose -f $(DOCKER_COMPOSE_FILE) exec debezium-connector /setup-connector.sh
+
 # Помощь (список доступных команд)
 help:
 	@echo "Доступные команды:"

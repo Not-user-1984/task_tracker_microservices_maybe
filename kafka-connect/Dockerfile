@@ -8,3 +8,7 @@ RUN curl -L -o /kafka/connect/debezium-connector-postgres.tar.gz https://repo1.m
 # Добавление JAR-файла для трансформации
 RUN curl -L -o /kafka/libs/debezium-core-2.7.3.Final.jar \
     https://repo1.maven.org/maven2/io/debezium/debezium-core/2.7.3.Final/debezium-core-2.7.3.Final.jar
+
+# Копирование скрипта настройки
+COPY setup-connector.sh /setup-connector.sh
+RUN chmod +x /setup-connector.sh

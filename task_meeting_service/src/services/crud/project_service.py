@@ -1,5 +1,5 @@
 from typing import Dict
-
+from src.schemas.user_events import UserEventSchemas
 
 class ProjectService:
     def __init__(self, db):
@@ -9,40 +9,51 @@ class ProjectService:
         query = """
             INSERT INTO projects (project_name, project_oid, status)
             VALUES ($1, $2, $3)
-            ON CONFLICT (project_name) DO NOTHING;
+            RETURNING *;
         """
         async with self.db.get_session() as conn:
-            await conn.execute(
+            result = await conn.fetchrow(
                 query,
                 project_data.project_name,
                 project_data.project_oid,
-                project_data.status,
+                'create',
             )
+            return dict(result)
 
     async def get_project(self, project_name):
-        query = "SELECT * FROM projects WHERE project_name = $1;"
+        query = """
+            SELECT * FROM projects
+            WHERE project_name = $1;
+        """
         async with self.db.get_session() as conn:
-            return await conn.fetchrow(query, project_name)
+            result = await conn.fetchrow(query, project_name)
+            if result:
+                return dict(result)
+            return None
 
-    async def update_project(self, project_id: int, project_data: Dict):
+    async def get_project_by_oid(self, project_oid: str):
+        query = "SELECT * FROM projects WHERE project_oid = $1;"
+        async with self.db.get_session() as conn:
+            return await conn.fetchrow(query, project_oid)
+
+    async def update_project(self, project_data: UserEventSchemas):
         async with self.db.get_session() as session:
             query = """
                 UPDATE projects
-                SET project_name = $1, description = $2, status = $3, release_date = $4
-                WHERE id = $5
+                SET project_name = $1, project_oid = $2, status = $3
+                WHERE project_oid = $4
                 RETURNING id;
             """
             values = (
-                project_data.get("project_name"),
-                project_data.get("description"),
-                project_data.get("status"),
-                project_data.get("release_date"),
-                project_id,
+                project_data.project_name,
+                project_data.project_oid,
+                'update',
+                project_data.project_oid,
             )
 
             result = await session.fetch(query, *values)
 
             if result:
-                return result[0]["id"]  # Возвращаем ID обновленного проекта
+                return result[0]["id"]
             else:
-                raise ValueError(f"Проект с id {project_id} не найден.")
+                raise ValueError(f"Проект с id {project_data.project_oidect_oid} не найден.")

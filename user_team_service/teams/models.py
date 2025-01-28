@@ -112,6 +112,7 @@ class UserAssignment(models.Model):
 
     project_oid = models.UUIDField(editable=False, null=True)
     user_oid = models.UUIDField(editable=False, null=True)
+    team_oid = models.UUIDField(editable=False, null=True)
 
     project_name = models.CharField(
         max_length=255, editable=False, null=True)
@@ -127,8 +128,10 @@ class UserAssignment(models.Model):
     def save(self, *args, **kwargs):
         self.project_oid = self.project.oid
         self.user_oid = self.user.oid
+        self.team_oid = self.team.oid
         self.project_name = self.project.name
         self.team_name = self.team.name if self.team else None
+        self.team_oid = self.team.oid
         self.user_email = self.user.email
         self.user_name = self.user.username
         self.user_role = self.user.role

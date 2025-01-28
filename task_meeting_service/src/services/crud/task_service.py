@@ -4,25 +4,29 @@ class TaskService:
 
     async def create_task(self, task_data):
         query = """
-            INSERT INTO tasks (description, status, project_id, user_name, status_changed_at, deadline)
+            INSERT INTO tasks (description, status, project_oid, user_name, status_changed_at, deadline)
             VALUES ($1, $2, $3, $4, $5, $6)
-            ON CONFLICT DO NOTHING;
+            RETURNING id;
         """
         async with self.db.get_session() as conn:
-            await conn.execute(
+            result = await conn.fetchrow(
                 query,
                 task_data["description"],
                 task_data["status"],
-                task_data["project_id"],
+                str(task_data["project_oid"]),
                 task_data["user_name"],
                 task_data["status_changed_at"],
                 task_data["deadline"],
             )
+            return result["id"]
 
-    async def get_task(self, description, project_id):
-        query = "SELECT * FROM tasks WHERE description = $1 AND project_id = $2;"
+    async def get_task(self, project_oid):
+        query = """
+            SELECT * FROM tasks
+            WHERE project_oid = $1;
+        """
         async with self.db.get_session() as conn:
-            return await conn.fetchrow(query, description, project_id)
+            return await conn.fetchrow(query, project_oid)
 
     async def delete_task(self, description, project_id):
         query = "DELETE FROM tasks WHERE description = $1 AND project_id = $2;"
