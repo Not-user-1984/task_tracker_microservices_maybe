@@ -13,13 +13,14 @@ class UserService:
         :return: ID созданного пользователя.
         """
         query = """
-            INSERT INTO users (user_oid, user_name, user_email, user_role, project_oid)
-            VALUES ($1, $2, $3, $4, $5)
+            INSERT INTO users (id, user_oid, user_name, user_email, user_role, project_oid)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING id;
         """
         async with self.db.get_session() as conn:
             result = await conn.fetchrow(
                 query,
+                user_data.id,
                 user_data.user_oid,  # Используем точечную нотацию
                 user_data.user_name,
                 user_data.user_email,
@@ -64,15 +65,15 @@ class UserService:
         async with self.db.get_session() as conn:
             return await conn.fetchrow(query, user_oid)
 
-    async def delete_user(self, user_oid):
+    async def delete_user(self, user_id):
         """
-        Удаляет пользователя по его user_oid.
+        Мягко удаляет пользователя, устанавливая is_deleted = TRUE.
 
         :param user_oid: Уникальный идентификатор пользователя.
         """
-        query = "DELETE FROM users WHERE user_oid = $1;"
+        query = "UPDATE users SET is_deleted = TRUE WHERE id = $1;"
         async with self.db.get_session() as conn:
-            await conn.execute(query, user_oid)
+            await conn.execute(query, user_id)
 
     async def get_user_projects(self, user_oid: str):
         """
@@ -89,15 +90,3 @@ class UserService:
         """
         async with self.db.get_session() as conn:
             return await conn.fetch(query, user_oid)
-
-    # async def update_user(self, user_oid, updates: dict):
-    #     fields = ", ".join(
-    #         f"{key} = ${idx + 2}" for idx, key in enumerate(updates.keys())
-    #     )
-    #     query = f"""
-    #         UPDATE users
-    #         SET {fields}
-    #         WHERE user_oid = $1
-    #     """
-    #     async with self.db.get_session() as conn:
-    #         await conn.execute(query, user_oid, *updates.values())

@@ -21,6 +21,7 @@ async def create_tables(db):
                 user_name VARCHAR(100) NOT NULL,
                 user_email VARCHAR(100) NOT NULL,
                 user_role VARCHAR(50),
+                is_deleted BOOLEAN DEFAULT FALSE,
                 project_oid VARCHAR(50) REFERENCES projects(project_oid) ON DELETE SET NULL
             );
         """)
@@ -32,7 +33,7 @@ async def create_tables(db):
                 description TEXT NOT NULL,
                 status VARCHAR(20) NOT NULL,
                 project_oid VARCHAR(50) NOT NULL REFERENCES projects(project_oid) ON DELETE CASCADE,
-                user_name VARCHAR(100),
+                user_oid VARCHAR(50) REFERENCES users(user_oid) ON DELETE SET NULL,
                 status_changed_at TIMESTAMP,
                 deadline TIMESTAMP
             );
@@ -46,5 +47,16 @@ async def create_tables(db):
                 team_name VARCHAR(100) NOT NULL,
                 project_oid VARCHAR(50) NOT NULL REFERENCES projects(project_oid) ON DELETE CASCADE,
                 user_oid VARCHAR(50) NOT NULL REFERENCES users(user_oid) ON DELETE CASCADE
+            );
+        """)
+        # Новая таблица для учёта ролей пользователей в проектах и программах
+        await conn.execute("""
+            CREATE TABLE IF NOT EXISTS user_project_roles (
+                id SERIAL PRIMARY KEY,
+                user_oid VARCHAR(50) NOT NULL REFERENCES users(user_oid) ON DELETE CASCADE,
+                project_oid VARCHAR(50) NOT NULL REFERENCES projects(project_oid) ON DELETE CASCADE,
+                program_name VARCHAR(100),
+                role VARCHAR(50),
+                UNIQUE (user_oid, project_oid, program_name) -- Уникальность записи
             );
         """)

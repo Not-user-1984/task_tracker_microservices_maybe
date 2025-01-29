@@ -1,6 +1,6 @@
 from typing import AsyncIterator
 from aiokafka import AIOKafkaConsumer, ConsumerRecord
-from src.consumers.consumer import MessageConsumer
+from src.core.abstractions.consumer import MessageConsumer
 
 
 class AIOKafkaMessageConsumer(MessageConsumer):

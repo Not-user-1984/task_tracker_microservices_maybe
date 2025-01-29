@@ -2,11 +2,11 @@ import asyncio
 import json
 import logging
 from typing import List, Dict, Any, Optional
-from src.consumers.consumer import MessageConsumer
+from src.core.abstractions.consumer import MessageConsumer
 from src.core.abstractions.message_handler import MessageHandler
 
 
-class MessageConsumerService:
+class MessageConsumerService():
     """
     Сервис для потребления и обработки сообщений из любого источника.
     """
@@ -38,6 +38,7 @@ class MessageConsumerService:
         self.logger.info("Message Consumer запущен.")
         try:
             async for msg in self.consumer.consume():
+                self.logger.info(msg)
                 await self.process_message(msg)
         except Exception as e:
             self.logger.error(f"Ошибка в Message Consumer: {e}")
@@ -59,7 +60,9 @@ class MessageConsumerService:
         :param msg: Сообщение от потребителя.
         """
         try:
+            
             value = self._decode_message_value(msg.value)
+
             self.list_msg.append(value)
             if value:
                 data = json.loads(value)

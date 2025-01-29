@@ -1,12 +1,10 @@
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
-from src.database.db import DatabaseSessionManager
+from src.database.db import db_manager
 from src.schemas.api.task import TaskCreateSchema, TaskUpdateSchema
 from src.services.crud.task_service import TaskService
 
 router = APIRouter()
-
-db_manager = DatabaseSessionManager()
 
 
 @router.post("/tasks/")
@@ -24,7 +22,9 @@ async def get_task(task_id: int):
 
 
 @router.put("/tasks/{task_id}/")
-async def update_task(task_id: int, task: TaskUpdateSchema):
+async def update_task(task_id: int, data: TaskCreateSchema):
     task_service = TaskService(db_manager)
-    await task_service.update_task(task_id, task.dict())
-    return JSONResponse(content={"message": "Task updated successfully"})
+    task = await task_service.update_task(task_id, data)
+    data = TaskCreateSchema(**dict(task))
+    return JSONResponse(content=data)
+    # return JSONResponse(content={f"message:  {task}"})

@@ -63,3 +63,22 @@ class TeamService:
                 return dict(result)
             else:
                 raise ValueError(f"Команда с team_oid {team_oid} не найдена.")
+
+    async def create_or_update_user_project_role(self, user_assignment):
+        """
+        Создаёт или обновляет связь между пользователем, проектом и программой.
+        """
+        query = """
+            INSERT INTO user_project_roles (user_oid, project_oid, program_name, role)
+            VALUES ($1, $2, $3, $4)
+            ON CONFLICT (user_oid, project_oid, program_name)
+            DO UPDATE SET role = EXCLUDED.role;
+        """
+        async with self.db.get_session() as conn:
+            await conn.execute(
+                query,
+                user_assignment.user_oid,
+                user_assignment.project_oid,
+                user_assignment.project_name,
+                user_assignment.user_role,
+            )

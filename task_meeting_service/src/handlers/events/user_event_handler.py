@@ -4,7 +4,7 @@ from src.schemas.user_events import UserEventSchemas
 from src.services.events.user_event_service import UserEventService
 from src.database.db import DatabaseSessionManager
 
-# from task_meeting_service.src.services.events.message_handler import MessageHandler
+# from src.services.events.message_handler import MessageHandler
 
 
 class UserEventHandler:
@@ -35,6 +35,16 @@ class UserEventHandler:
                 self.logger.info(f"обновление обьекта: {user_assignment.user_oid}")
         except Exception as e:
             self.logger.error(f"Ошибка обработки сообщения: {e}")
+
+    async def handle_deletion(self, user_assignment):
+        """
+        Обра��атывает удаление объекта.
+        """
+        try:
+            self.logger.info(f"Удаление обьекта: {user_assignment}")
+            await self.user_event_service.handle_deletion(user_assignment)
+        except Exception as e:
+            self.logger.error(f"Ошибка при обработке удаления: {e}")
 
     def _find_extra_fields(
         self, data: Dict[str, Any], schema_fields: Set[str]

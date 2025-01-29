@@ -2,14 +2,14 @@ import logging
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
 import asyncio
-from src.services.events.consumer_service import MessageConsumerService
+from src.consumers.consumer_мessage import MessageConsumerService
 from src.handlers.events.user_event_handler import UserEventHandler
 from src.consumers.aiokafka.factories import create_kafka_consumer
 
 from src.api.v1.endpoints.projects import router as projects_router
 from src.api.v1.endpoints.user import router as user_router
 from src.api.v1.endpoints.task import router as task_router
-from src.database.db import DatabaseSessionManager
+from src.database.db import db_manager
 from src.database.database_initializer import create_tables
 
 logging.basicConfig(
@@ -20,20 +20,18 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-# Подключаем маршруты
 app.include_router(user_router, prefix="/api")
 app.include_router(task_router, prefix="/api")
 app.include_router(projects_router, prefix="/api")
-
-# Инициализация базы данных
-db_manager = DatabaseSessionManager()
 
 consumer = create_kafka_consumer()
 handler = UserEventHandler(logger, db_manager)
 kafka_consumer_service = MessageConsumerService(consumer, handler, logger)
 
+
 async def init_db(db_manager):
     await create_tables(db_manager)
+
 
 @app.on_event("startup")
 async def startup_event():
@@ -50,4 +48,6 @@ async def shutdown_event():
     try:
         await kafka_consumer_service.stop()
     except asyncio.TimeoutError:
-        logger.error("Не удалось остановить Kafka Consumer в течение 10 секунд")
+        logger.error(
+            "Не удалось остановить Kafka Consumer в течение 10 секунд"
+            )

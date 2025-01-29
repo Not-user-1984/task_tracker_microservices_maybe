@@ -5,8 +5,9 @@ class TaskCreateSchema(BaseModel):
     description: str
     status: str
     deadline: date
-    project_id: int
-    user_name: str
+    project_oid: str
+    user_oid: str
+    status_changed_at: date = date.today()
 
 class TaskUpdateSchema(BaseModel):
     description: str

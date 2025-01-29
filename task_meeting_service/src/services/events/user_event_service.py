@@ -53,32 +53,10 @@ class UserEventService:
             self.logger.error(f"Ошибка при обработке создания: {e}")
             raise
 
-    async def handle_deletion(self, key: Dict[str, Any]):
-        """
-        Обрабатывает удаление задач, проектов, пользователей и команд.
-        """
-        try:
-            if "description" in key and "project_id" in key:
-                await self.task_service.delete_task(key["description"], key["project_id"])
-                self.logger.info(
-                    f"Удалена задача: {key['description']} из проекта {key['project_id']}"
-                )
-
-            if "project_name" in key:
-                await self.project_service.delete_project(key["project_name"])
-                self.logger.info(f"Удален проект: {key['project_name']}")
-
-            if "user_oid" in key:
-                await self.user_service.delete_user(key["user_oid"])
-                self.logger.info(f"Удален пользователь: {key['user_oid']}")
-
-            if "team_oid" in key:
-                await self.teams_service.delete_team(key["team_oid"])
-                self.logger.info(f"Удалена команда: {key['team_oid']}")
-
-        except Exception as e:
-            self.logger.error(f"Ошибка при обработке удаления: {e}")
-            raise
+    async def handle_deletion(self, user_assignment: UserEventSchemas):
+        id_user = user_assignment.get("payload")
+        await self.user_service.delete_user(id_user)
+        self.logger.info(f"Deleting id: {id_user}")
 
     async def handle_update(self, user_assignment: UserEventSchemas):
         """
@@ -130,7 +108,6 @@ class UserEventService:
         create_method: Callable = None,
         entity_name: str = "",
         entity_data: UserEventSchemas = None,
-
         log_name: str = "",
     ):
         """
@@ -153,4 +130,4 @@ class UserEventService:
         else:
             if create_method:
                 await create_method(entity_data)
-                self.logger.info(f"Создан новый {entity_name}: {log_name}")
+                self.logger.info(f"Создан {entity_name}: {log_name}")
