@@ -14,14 +14,14 @@ class TaskService:
         async with self.db.get_session() as conn:
             result = await conn.fetchrow(
                 query,
-                task_data["description"],
-                task_data["status"],
-                str(task_data["project_oid"]),
-                task_data["user_oid"],
-                task_data["status_changed_at"],
-                task_data["deadline"],
+                task_data.description,
+                task_data.status,
+                task_data.project_oid,
+                task_data.user_oid,
+                task_data.status_changed_at,
+                task_data.deadline,
             )
-            return result["id"]
+            return result
 
     async def get_task(self, project_oid):
         query = """
@@ -36,17 +36,13 @@ class TaskService:
         async with self.db.get_session() as conn:
             await conn.execute(query, description, project_id)
 
-    # async def update_task(self, description, project_id, updates: dict):
-    #     fields = ", ".join(
-    #         f"{key} = ${idx + 3}" for idx, key in enumerate(updates.keys())
-    #     )
-    #     query = f"""
-    #         UPDATE tasks
-    #         SET {fields}
-    #         WHERE description = $1 AND project_id = $2
-    #     """
-    #     async with self.db.get_session() as conn:
-    #         await conn.execute(query, description, project_id, *updates.values())
+    async def get_task_by_id(self, task_id: int):
+        query = """
+            SELECT * FROM tasks
+            WHERE id = $1;
+        """
+        async with self.db.get_session() as conn:
+            return await conn.fetchrow(query, task_id)
 
     async def update_task(self, task_id: int, task: BaseModel):
         query = """
@@ -58,10 +54,9 @@ class TaskService:
                 status_changed_at = $5,
                 deadline = $6
             WHERE id = $7
-            RETURNING id;
+            RETURNING id, description, status, deadline, project_oid, user_oid, status_changed_at;
         """
 
-        # Подставляем значения из объекта task
         async with self.db.get_session() as conn:
             result = await conn.fetchrow(
                 query,
@@ -71,6 +66,24 @@ class TaskService:
                 task.user_oid,
                 task.status_changed_at,
                 task.deadline,
-                task_id,  # Идентификатор задачи, которую обновляем
+                task_id,
             )
             return result
+
+    async def get_tasks(self, project_oid: str = None, user_oid: str = None):
+        query = "SELECT * FROM tasks"
+        params = []
+
+        if project_oid or user_oid:
+            query += " WHERE "
+            conditions = []
+            if project_oid:
+                conditions.append("project_oid = $1")
+                params.append(project_oid)
+            if user_oid:
+                conditions.append("user_oid = $" + str(len(params) + 1))
+                params.append(user_oid)
+            query += " AND ".join(conditions)
+
+        async with self.db.get_session() as conn:
+            return await conn.fetch(query, *params)
