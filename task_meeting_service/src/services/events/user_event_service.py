@@ -1,5 +1,5 @@
 from typing import Any, Dict, Callable
-from src.services.crud.user_service import UserService
+from src.services.events.crud.user import UserService
 from src.services.crud.project_service import ProjectService
 from src.services.crud.task_service import TaskService
 from src.services.crud.team_service import TeamService

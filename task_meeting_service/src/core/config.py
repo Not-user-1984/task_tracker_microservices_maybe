@@ -1,5 +1,4 @@
 from pydantic_settings import BaseSettings
-from typing import Optional
 
 
 class Settings(BaseSettings):
@@ -13,8 +12,8 @@ class Settings(BaseSettings):
     postgres_host: str = "db_task"
     postgres_port: int = 5433
 
-    # class Config:
-    #     env_file = ".env"
+    class Config:
+        env_file = ".env"
 
     def get_postgres_url(self) -> str:
         """

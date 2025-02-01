@@ -8,7 +8,7 @@ DB_USER = django_user          # Пользователь базы данных
 DB_NAME = django_db       # Имя базы данных
 
 # Дополнительные сервисы (например, task_meeting_service, redis, db и т.д.)
-# SERVICE_NAME_TASK_MEETING=task_meeting_service
+SERVICE_NAME_TASK_MEETING=task_meeting_service
 # SERVICE_NAME_REDIS=redis
 # SERVICE_NAME_DB=postgres_db
 
@@ -43,7 +43,7 @@ makemigrations:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) exec $(SERVICE_NAME) python manage.py makemigrations
 
 # Создание суперпользователя Django
-dj_cr_s_user:
+s_user:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) exec $(SERVICE_NAME) python manage.py createsuperuser
 
 # Запуск shell внутри контейнера Django
@@ -66,6 +66,11 @@ prune:
 setup-connector:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) exec debezium-connector /setup-connector.sh
 
+logs-fastapi:
+	docker-compose -f $(DOCKER_COMPOSE_FILE) logs -f $(SERVICE_NAME_TASK_MEETING)
+
+sh-fastapi:
+	docker-compose -f $(DOCKER_COMPOSE_FILE) exec $(SERVICE_NAME_TASK_MEETING) sh
 # Помощь (список доступных команд)
 help:
 	@echo "Доступные команды:"

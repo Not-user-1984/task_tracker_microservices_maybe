@@ -28,5 +28,6 @@ class TaskResponse(BaseModel):
     user_oid: str
     status_changed_at: datetime
 
+
 class TaskListResponse(BaseModel):
     tasks: List[TaskResponse]
