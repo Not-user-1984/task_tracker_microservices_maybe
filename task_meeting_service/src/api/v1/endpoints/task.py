@@ -9,6 +9,8 @@ from src.schemas.api.task import (
     TaskResponse,
 )
 from src.services.crud.task_service import TaskService
+from src.auth.dependencies import get_current_user
+from src.auth.security import TokenData
 
 router = APIRouter()
 
@@ -25,7 +27,10 @@ async def create_task(task: TaskCreateSchema):
 
 
 @router.get("/tasks/{task_id}/")
-async def get_task(task_id: int):
+async def get_task(
+    task_id: int,
+    current_user: TokenData = Depends(get_current_user)
+    ):
     task_service = TaskService(db_manager)
     task = await task_service.get_task_by_id(task_id)
     task_dict = dict(task)

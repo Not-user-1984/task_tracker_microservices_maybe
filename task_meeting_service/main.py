@@ -9,6 +9,7 @@ from src.consumers.aiokafka.factories import create_kafka_consumer
 from src.api.v1.endpoints.projects import router as projects_router
 from src.api.v1.endpoints.user import router as user_router
 from src.api.v1.endpoints.task import router as task_router
+from src.api.v1.endpoints.auth import router as auth_router
 from src.database.db import db_manager
 from src.database.database_initializer import create_tables
 
@@ -20,9 +21,11 @@ logger = logging.getLogger(__name__)
 
 app = FastAPI()
 
-app.include_router(user_router, prefix="/api")
+app.include_router(user_router, prefix="/api", )
 app.include_router(task_router, prefix="/api")
 app.include_router(projects_router, prefix="/api")
+app.include_router(projects_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
 
 consumer = create_kafka_consumer()
 handler = UserEventHandler(logger, db_manager)
