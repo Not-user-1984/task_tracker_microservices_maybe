@@ -5,6 +5,7 @@ from typing import AsyncGenerator, Optional
 # from src.core.config import settings
 postgres_url = "postgresql://task_user:task_password@db_task:5432/task"
 
+
 class DatabaseSessionManager:
     """
     Менеджер для управления асинхронными сессиями базы данных.
@@ -18,10 +19,7 @@ class DatabaseSessionManager:
         Создает пул соединений с базой данных.
         """
         self.connection_pool = await asyncpg.create_pool(
-            dsn=postgres_url,
-            min_size=1,
-            max_size=10,
-            command_timeout=60
+            dsn=postgres_url, min_size=1, max_size=10, command_timeout=60
         )
 
     async def close(self):

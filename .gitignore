@@ -172,3 +172,4 @@ cython_debug/
 static/
 .idea/
 .DS_Store
+notification_email/emails.db

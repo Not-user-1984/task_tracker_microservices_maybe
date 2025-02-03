@@ -15,14 +15,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         team_code = validated_data.pop("team_code", None)
         user = User.objects.create_user(**validated_data)
 
-        # Привязка пользователя к команде по коду
         if team_code:
             try:
                 team = Team.objects.get(code=team_code)
                 user.team = team
                 user.save()
             except Team.DoesNotExist:
-                pass  # Команда не найдена
+                pass
 
         return user
 

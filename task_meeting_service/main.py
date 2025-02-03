@@ -1,5 +1,6 @@
 import logging
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import asyncio
 from src.consumers.consumer_мessage import MessageConsumerService
@@ -31,6 +32,13 @@ consumer = create_kafka_consumer()
 handler = UserEventHandler(logger, db_manager)
 kafka_consumer_service = MessageConsumerService(consumer, handler, logger)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 async def init_db(db_manager):
     await create_tables(db_manager)

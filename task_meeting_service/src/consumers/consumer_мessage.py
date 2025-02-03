@@ -6,7 +6,7 @@ from src.core.abstractions.consumer import MessageConsumer
 from src.core.abstractions.message_handler import MessageHandler
 
 
-class MessageConsumerService():
+class MessageConsumerService:
     """
     Сервис для потребления и обработки сообщений из любого источника.
     """
@@ -38,7 +38,6 @@ class MessageConsumerService():
         self.logger.info("Message Consumer запущен.")
         try:
             async for msg in self.consumer.consume():
-                self.logger.info(msg)
                 await self.process_message(msg)
         except Exception as e:
             self.logger.error(f"Ошибка в Message Consumer: {e}")
@@ -60,7 +59,7 @@ class MessageConsumerService():
         :param msg: Сообщение от потребителя.
         """
         try:
-            
+
             value = self._decode_message_value(msg.value)
 
             self.list_msg.append(value)
@@ -74,9 +73,7 @@ class MessageConsumerService():
                 else:
                     await self.message_handler.handle_message(payload)
             else:
-                await self.message_handler.handle_deletion(
-                    self._decode_key(msg.key)
-                )
+                await self.message_handler.handle_deletion(self._decode_key(msg.key))
         except json.JSONDecodeError as e:
             self.logger.error(f"Ошибка декодирования JSON: {e}")
             self.logger.error(f"Полученное сообщение: {msg.value}")

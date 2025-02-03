@@ -43,7 +43,7 @@ makemigrations:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) exec $(SERVICE_NAME) python manage.py makemigrations
 
 # Создание суперпользователя Django
-s_user:
+createsuperuser:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) exec $(SERVICE_NAME) python manage.py createsuperuser
 
 # Запуск shell внутри контейнера Django
@@ -71,7 +71,9 @@ logs-fastapi:
 
 sh-fastapi:
 	docker-compose -f $(DOCKER_COMPOSE_FILE) exec $(SERVICE_NAME_TASK_MEETING) sh
-# Помощь (список доступных команд)
+
+tests-fastapi:
+	docker-compose -f $(DOCKER_COMPOSE_FILE) exec $(SERVICE_NAME_TASK_MEETING) /bin/sh -c "pytest -vv"
 help:
 	@echo "Доступные команды:"
 	@echo "  make up               - Сборка и запуск всех сервисов"

@@ -1,5 +1,15 @@
-async def create_tables(db):
+import asyncpg
+
+async def create_tables(db, schema: str = 'public'):
+    """
+    Создает таблицы в указанной схеме.
+    По умолчанию используется схема public.
+    """
     async with db.get_session() as conn:
+        # Если схема не public, устанавливаем ее для search_path
+        if schema != 'public':
+            await conn.execute(f"SET search_path TO {schema};")
+
         # Таблица projects
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS projects (
@@ -49,7 +59,8 @@ async def create_tables(db):
                 user_oid VARCHAR(50) NOT NULL REFERENCES users(user_oid) ON DELETE CASCADE
             );
         """)
-        # Новая таблица для учёта ролей пользователей в проектах и программах
+
+        # Таблица user_project_roles
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS user_project_roles (
                 id SERIAL PRIMARY KEY,
@@ -57,6 +68,35 @@ async def create_tables(db):
                 project_oid VARCHAR(50) NOT NULL REFERENCES projects(project_oid) ON DELETE CASCADE,
                 program_name VARCHAR(100),
                 role VARCHAR(50),
-                UNIQUE (user_oid, project_oid, program_name) -- Уникальность записи
+                UNIQUE (user_oid, project_oid, program_name)
             );
         """)
+
+async def delete_all_data(db, schema: str = 'public'):
+    """
+    Удаляет все данные из таблиц в указанной схеме.
+    Используется TRUNCATE с RESTART IDENTITY для сброса счетчиков.
+    """
+    async with db.get_session() as conn:
+        if schema != 'public':
+            await conn.execute(f"SET search_path TO {schema};")
+        # Удаляем данные в порядке, учитывающем внешние ключи
+        await conn.execute("TRUNCATE TABLE user_project_roles RESTART IDENTITY CASCADE;")
+        await conn.execute("TRUNCATE TABLE team RESTART IDENTITY CASCADE;")
+        await conn.execute("TRUNCATE TABLE tasks RESTART IDENTITY CASCADE;")
+        await conn.execute("TRUNCATE TABLE users RESTART IDENTITY CASCADE;")
+        await conn.execute("TRUNCATE TABLE projects RESTART IDENTITY CASCADE;")
+
+async def create_test_schema(db, schema: str = 'test'):
+    """
+    Создает отдельную схему (по умолчанию test) в текущей БД.
+    Если схема уже существует, она удаляется вместе со всеми объектами (CASCADE),
+    затем создается заново и в ней создаются таблицы.
+    """
+    async with db.get_session() as conn:
+        # Удаляем схему, если она существует
+        await conn.execute(f"DROP SCHEMA IF EXISTS {schema} CASCADE;")
+        # Создаем новую схему
+        await conn.execute(f"CREATE SCHEMA {schema};")
+    # Создаем таблицы в новой схеме
+    await create_tables(db, schema)

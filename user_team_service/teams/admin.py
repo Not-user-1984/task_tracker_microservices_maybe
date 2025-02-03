@@ -50,7 +50,7 @@ class NewsAdmin(admin.ModelAdmin):
         """
         Автоматически назначаем создателя новости.
         """
-        if not obj.pk:  # Если новость создается впервые
+        if not obj.pk:
             obj.created_by = request.user
         super().save_model(request, obj, form, change)
 
@@ -60,7 +60,7 @@ class NewsAdmin(admin.ModelAdmin):
         """
         if db_field.name == "team":
             if request.user.is_superuser:
-                pass  # Суперпользователь может выбирать любую команду
+                pass
             elif request.user.role == "admin" and request.user.organization:
                 # Админ организации может выбирать только свои команды
                 kwargs["queryset"] = Team.objects.filter(
@@ -69,5 +69,5 @@ class NewsAdmin(admin.ModelAdmin):
             else:
                 kwargs["queryset"] = (
                     Team.objects.none()
-                )  # Остальные пользователи не могут выбирать команды
+                )
         return super().formfield_for_foreignkey(db_field, request, **kwargs)

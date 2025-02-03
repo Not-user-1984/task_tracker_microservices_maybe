@@ -7,6 +7,11 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    healthcheck:
+      test: ["CMD", "zkServer.sh", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       - my_network
 
@@ -21,8 +26,14 @@ services:
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
     depends_on:
       - zookeeper
+    healthcheck:
+      test: ["CMD", "kafka-topics", "--list", "--bootstrap-server", "kafka:9092"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
     networks:
       - my_network
+
   kafka-connect-ui:
     image: landoop/kafka-connect-ui
     container_name: kafka-connect-ui
@@ -153,6 +164,19 @@ services:
       KAFKA_BROKER: kafka:9092
     networks:
       - my_network
+
+  vue-app:
+    build: ./vue-app
+    container_name: vue-app
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./vue-app:/app
+      - /app/node_modules
+    networks:
+      - my_network
+
+
 networks:
   my_network:
     driver: bridge
