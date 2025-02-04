@@ -12,6 +12,10 @@ class Settings(BaseSettings):
     postgres_host: str = "db_task"
     postgres_port: int = 5433
 
+    SECRET_KEY = "ваш_секретный_ключ"
+    ALGORITHM = "HS256"
+    ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
     class Config:
         env_file = ".env"
 
@@ -23,4 +27,6 @@ class Settings(BaseSettings):
             f"postgresql://{self.postgres_user}:{self.postgres_password}@"
             f"{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
         )
+
+
 settings = Settings()

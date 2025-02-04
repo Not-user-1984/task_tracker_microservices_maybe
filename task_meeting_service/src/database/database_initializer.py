@@ -6,10 +6,8 @@ async def create_tables(db, schema: str = 'public'):
     По умолчанию используется схема public.
     """
     async with db.get_session() as conn:
-        # Если схема не public, устанавливаем ее для search_path
         if schema != 'public':
             await conn.execute(f"SET search_path TO {schema};")
-
         # Таблица projects
         await conn.execute("""
             CREATE TABLE IF NOT EXISTS projects (
@@ -80,7 +78,6 @@ async def delete_all_data(db, schema: str = 'public'):
     async with db.get_session() as conn:
         if schema != 'public':
             await conn.execute(f"SET search_path TO {schema};")
-        # Удаляем данные в порядке, учитывающем внешние ключи
         await conn.execute("TRUNCATE TABLE user_project_roles RESTART IDENTITY CASCADE;")
         await conn.execute("TRUNCATE TABLE team RESTART IDENTITY CASCADE;")
         await conn.execute("TRUNCATE TABLE tasks RESTART IDENTITY CASCADE;")
@@ -94,9 +91,6 @@ async def create_test_schema(db, schema: str = 'test'):
     затем создается заново и в ней создаются таблицы.
     """
     async with db.get_session() as conn:
-        # Удаляем схему, если она существует
         await conn.execute(f"DROP SCHEMA IF EXISTS {schema} CASCADE;")
-        # Создаем новую схему
         await conn.execute(f"CREATE SCHEMA {schema};")
-    # Создаем таблицы в новой схеме
     await create_tables(db, schema)

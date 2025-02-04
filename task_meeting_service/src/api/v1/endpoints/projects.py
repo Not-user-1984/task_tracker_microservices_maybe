@@ -7,8 +7,6 @@ from src.schemas.api.project import ProjectCreateSchema, ProjectUpdateSchema
 router = APIRouter()
 
 
-
-
 @router.post("/projects/")
 async def create_project(project: ProjectCreateSchema):
     project_service = ProjectService(db_manager)

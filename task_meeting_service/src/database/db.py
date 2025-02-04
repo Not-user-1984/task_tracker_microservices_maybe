@@ -2,7 +2,6 @@ import asyncpg
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator, Optional
 
-# from src.core.config import settings
 postgres_url = "postgresql://task_user:task_password@db_task:5432/task"
 
 
