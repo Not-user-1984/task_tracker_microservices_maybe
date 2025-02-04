@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  db_django:
+    image: postgres:latest
+    container_name: db_django
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./user_team_service/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./user_team_service/postgresql.conf:/etc/postgresql/postgresql.conf
+    command: ["postgres", "-c", "config_file=/etc/postgresql/postgresql.conf"]
+    env_file:
+      - ./user_team_service/.env
+    networks:
+      - my_network
+
+  db_task:
+    image: postgres:latest
+    container_name: db_task
+    restart: always
+    environment:
+      POSTGRES_DB: task
+      POSTGRES_USER: task_user
+      POSTGRES_PASSWORD: task_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data_task:/var/lib/postgresql/data
+    env_file:
+      - ./task_meeting_service/.env
+    networks:
+      - my_network
+
+  user_team_service:
+    build: user_team_service/.
+    container_name: user_team_service
+
+    volumes:
+      - ./user_team_service:/app
+      - ./user_team_service/staticfiles:/app/staticfiles 
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db_django
+    env_file:
+      - ./user_team_service/.env
+      
+    networks:
+      - my_network
+
+  task_meeting_service:
+    build:  task_meeting_service/.
+    container_name: task_meeting_service
+    volumes:
+      - ./task_meeting_service:/app
+    ports:
+      - "8001:8001"
+    depends_on:
+      - db_task
+    env_file:
+      - ./task_meeting_service/.env
+    networks:
+      - my_network
+
+
+  notification_email:
+    build: ./notification_email
+    container_name: notification_email
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./notification_email:/app
+    depends_on:
+      - db_task
+    environment:
+      KAFKA_BROKER: kafka:9092
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  postgres_data_task:
