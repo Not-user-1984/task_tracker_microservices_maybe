@@ -16,8 +16,12 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
+    SCHEMA_SERVICE: str = "public"
+    SCHEMA_TEST: str = "test"
+
     class Config:
         env_file = ".env"
+        env_file_encoding = "utf-8"
 
     def get_postgres_url(self) -> str:
         """
@@ -27,6 +31,9 @@ class Settings(BaseSettings):
             f"postgresql://{self.postgres_user}:{self.postgres_password}@"
             f"{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
         )
+
+    def get_allowed_schemas(self) -> set[str]:
+        return {self.SCHEMA_TEST, self.SCHEMA_SERVICE}
 
 
 settings = Settings()

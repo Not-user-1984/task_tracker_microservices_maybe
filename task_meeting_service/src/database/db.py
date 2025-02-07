@@ -4,7 +4,6 @@ from typing import AsyncGenerator, Optional
 
 postgres_url = "postgresql://task_user:task_password@db_task:5432/task"
 
-
 class DatabaseSessionManager:
     """
     Менеджер для управления асинхронными сессиями базы данных.
@@ -12,6 +11,7 @@ class DatabaseSessionManager:
 
     def __init__(self):
         self.connection_pool: Optional[asyncpg.pool.Pool] = None
+        self.connection: Optional[asyncpg.Connection] = None
 
     async def connect(self):
         """
@@ -28,26 +28,32 @@ class DatabaseSessionManager:
         if self.connection_pool:
             await self.connection_pool.close()
 
+    def _raise_if_not_connected(self):
+        """
+        Выбрасывает исключение, если пул соединений не инициализирован.
+        """
+        if not self.connection_pool:
+            raise Exception(
+                "Пул соединений не инициализирован. Вызовите connect() перед использованием сессии."
+            )
+
     @asynccontextmanager
     async def get_session(self) -> AsyncGenerator[asyncpg.Connection, None]:
         """
         Асинхронный контекстный менеджер для получения соединения с базой данных.
         """
-        if not self.connection_pool:
-            raise Exception("Пул соединений не инициализирован")
-
+        self._raise_if_not_connected()
         async with self.connection_pool.acquire() as connection:
-            try:
-                yield connection
-            finally:
-                await self.connection_pool.release(connection)
+            yield connection
 
     async def __aenter__(self) -> asyncpg.Connection:
         """
         Открывает новое соединение с базой данных.
         """
-        if not self.connection_pool:
-            raise Exception("Пул соединений не инициализирован")
+        self._raise_if_not_connected()
+
+        if self.connection:
+            await self.connection_pool.release(self.connection)
 
         self.connection = await self.connection_pool.acquire()
         return self.connection
@@ -62,6 +68,6 @@ class DatabaseSessionManager:
             await self.connection.commit()
 
         await self.connection_pool.release(self.connection)
-
+        self.connection = None
 
 db_manager = DatabaseSessionManager()

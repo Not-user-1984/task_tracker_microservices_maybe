@@ -1,7 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
 from typing import Dict, Any
-
 from pydantic import BaseModel
 
 
@@ -25,7 +24,7 @@ class MessageHandler(ABC):
 
         :param key: Ключ удаляемого объекта.
         """
-        pass
+        ...
 
     @abstractmethod
     async def handle_creation(self, user_assignment: BaseModel) -> None:
@@ -34,7 +33,7 @@ class MessageHandler(ABC):
 
         :param user_assignment: Данные создаваемого объекта.
         """
-        pass
+        ...
 
     @abstractmethod
     async def handle_update(self, user_assignment: BaseModel) -> None:
@@ -43,4 +42,4 @@ class MessageHandler(ABC):
 
         :param user_assignment: Данные обновляемого объекта.
         """
-        pass
+        ...
