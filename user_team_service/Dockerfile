@@ -10,6 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 RUN pip install gunicorn
 
+RUN python manage.py migrate
 
 RUN chmod +x entrypoint.sh
 
