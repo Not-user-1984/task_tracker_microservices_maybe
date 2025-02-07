@@ -1,10 +1,10 @@
 import asyncpg
-import os
 from src.core.config import settings
 
 SCHEMA_TEST = settings.SCHEMA_TEST
 SCHEMA_SERVICE = settings.SCHEMA_SERVICE
 ALLOWED_SCHEMAS = settings.get_allowed_schemas()
+
 
 # PostgreSQL не поддерживает параметризацию в DDL-запросах
 def validate_schema_name(schema: str) -> bool:
@@ -12,6 +12,7 @@ def validate_schema_name(schema: str) -> bool:
     Проверяет, что имя схемы разрешено.
     """
     return schema in ALLOWED_SCHEMAS
+
 
 async def create_tables(db, schema: str = SCHEMA_SERVICE):
     """
@@ -26,7 +27,8 @@ async def create_tables(db, schema: str = SCHEMA_SERVICE):
             await conn.execute(f"SET search_path TO {schema};")
 
         # Таблица projects
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS projects (
                 id SERIAL PRIMARY KEY,
                 project_name VARCHAR(100) UNIQUE NOT NULL,
@@ -36,10 +38,12 @@ async def create_tables(db, schema: str = SCHEMA_SERVICE):
                 release_date TIMESTAMP,
                 created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             );
-        """)
+        """
+        )
 
         # Таблица users
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS users (
                 id SERIAL PRIMARY KEY,
                 user_oid VARCHAR(50) UNIQUE NOT NULL,
@@ -49,10 +53,12 @@ async def create_tables(db, schema: str = SCHEMA_SERVICE):
                 is_deleted BOOLEAN DEFAULT FALSE,
                 project_oid VARCHAR(50) REFERENCES projects(project_oid) ON DELETE SET NULL
             );
-        """)
+        """
+        )
 
         # Таблица tasks
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS tasks (
                 id SERIAL PRIMARY KEY,
                 description TEXT NOT NULL,
@@ -62,10 +68,12 @@ async def create_tables(db, schema: str = SCHEMA_SERVICE):
                 status_changed_at TIMESTAMP,
                 deadline TIMESTAMP
             );
-        """)
+        """
+        )
 
         # Таблица team
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS team (
                 id SERIAL PRIMARY KEY,
                 team_oid VARCHAR(50) UNIQUE NOT NULL,
@@ -73,10 +81,12 @@ async def create_tables(db, schema: str = SCHEMA_SERVICE):
                 project_oid VARCHAR(50) NOT NULL REFERENCES projects(project_oid) ON DELETE CASCADE,
                 user_oid VARCHAR(50) NOT NULL REFERENCES users(user_oid) ON DELETE CASCADE
             );
-        """)
+        """
+        )
 
         # Таблица user_project_roles
-        await conn.execute("""
+        await conn.execute(
+            """
             CREATE TABLE IF NOT EXISTS user_project_roles (
                 id SERIAL PRIMARY KEY,
                 user_oid VARCHAR(50) NOT NULL REFERENCES users(user_oid) ON DELETE CASCADE,
@@ -85,7 +95,9 @@ async def create_tables(db, schema: str = SCHEMA_SERVICE):
                 role VARCHAR(50),
                 UNIQUE (user_oid, project_oid, program_name)
             );
-        """)
+        """
+        )
+
 
 async def delete_all_data(db, schema: str = SCHEMA_SERVICE):
     """
@@ -98,11 +110,14 @@ async def delete_all_data(db, schema: str = SCHEMA_SERVICE):
     async with db.get_session() as conn:
         if schema != SCHEMA_SERVICE:
             await conn.execute(f"SET search_path TO {schema};")
-        await conn.execute("TRUNCATE TABLE user_project_roles RESTART IDENTITY CASCADE;")
+        await conn.execute(
+            "TRUNCATE TABLE user_project_roles RESTART IDENTITY CASCADE;"
+        )
         await conn.execute("TRUNCATE TABLE team RESTART IDENTITY CASCADE;")
         await conn.execute("TRUNCATE TABLE tasks RESTART IDENTITY CASCADE;")
         await conn.execute("TRUNCATE TABLE users RESTART IDENTITY CASCADE;")
         await conn.execute("TRUNCATE TABLE projects RESTART IDENTITY CASCADE;")
+
 
 async def create_test_schema(db, schema: str = SCHEMA_TEST):
     """

@@ -4,6 +4,7 @@ from typing import AsyncGenerator, Optional
 
 postgres_url = "postgresql://task_user:task_password@db_task:5432/task"
 
+
 class DatabaseSessionManager:
     """
     Менеджер для управления асинхронными сессиями базы данных.
@@ -67,7 +68,5 @@ class DatabaseSessionManager:
         else:
             await self.connection.commit()
 
-        await self.connection_pool.release(self.connection)
-        self.connection = None
 
 db_manager = DatabaseSessionManager()
