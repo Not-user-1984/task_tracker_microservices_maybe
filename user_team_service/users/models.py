@@ -4,26 +4,40 @@ from django.db import models
 
 
 class User(AbstractUser):
-    STATUS_CHOICES = [
+    """
+    Модель пользователя.
+    """
+
+    ROLE_CHOICES = [
         ("user", "Обычный пользователь"),
         ("admin", "Администратор"),
     ]
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default="user")
+
     oid = models.CharField(
-        max_length=100, unique=True, default=uuid.uuid4, verbose_name="OID пользователя"
+        max_length=100,
+        unique=True,
+        default=uuid.uuid4,
+        verbose_name="OID пользователя"
     )
     team = models.ForeignKey(
-        "teams.Team", on_delete=models.SET_NULL, null=True, blank=True
+        "teams.Team",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name="Команда пользователя",
     )
     role = models.CharField(
-        max_length=10, choices=STATUS_CHOICES, default="employee", verbose_name="Роль"
+        max_length=10,
+        choices=ROLE_CHOICES,
+        default="user",
+        verbose_name="роль в команде",
     )
     organization = models.ForeignKey(
         "teams.Organization",
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        related_name="users",
+        related_name="organization_users",
         verbose_name="Организация",
     )
     groups = models.ManyToManyField(

@@ -1,4 +1,6 @@
+from typing import Optional
 from pydantic import BaseModel
+from src.schemas.api.task import TaskUpdateSchema
 
 
 class TaskService:
@@ -31,10 +33,10 @@ class TaskService:
         async with self.db.get_session() as conn:
             return await conn.fetchrow(query, project_oid)
 
-    async def delete_task(self, description, project_id):
-        query = "DELETE FROM tasks WHERE description = $1 AND project_id = $2;"
+    async def delete_task(self, description: str, project_oid: str):
+        query = "DELETE FROM tasks WHERE description = $1 AND project_oid = $2;"
         async with self.db.get_session() as conn:
-            await conn.execute(query, description, project_id)
+            await conn.execute(query, description, project_oid)
 
     async def get_task_by_id(self, task_id: int):
         query = """
@@ -44,9 +46,10 @@ class TaskService:
         async with self.db.get_session() as conn:
             return await conn.fetchrow(query, task_id)
 
-    async def update_task(self, task_id: int, task: BaseModel):
+    async def update_task(self, task_id: int, task: TaskUpdateSchema):
         query = """
             UPDATE tasks
+
             SET description = $1,
                 status = $2,
                 project_oid = $3,
@@ -70,20 +73,22 @@ class TaskService:
             )
             return result
 
-    async def get_tasks(self, project_oid: str = None, user_oid: str = None):
+    async def get_tasks(
+        self, project_oid: Optional[str] = None, user_oid: Optional[str] = None
+    ):
         query = "SELECT * FROM tasks"
         params = []
+        conditions = []
 
-        if project_oid or user_oid:
-            query += " WHERE "
-            conditions = []
-            if project_oid:
-                conditions.append("project_oid = $1")
-                params.append(project_oid)
-            if user_oid:
-                conditions.append("user_oid = $" + str(len(params) + 1))
-                params.append(user_oid)
-            query += " AND ".join(conditions)
+        if project_oid:
+            conditions.append("project_oid = $" + str(len(params) + 1))
+            params.append(project_oid)
+        if user_oid:
+            conditions.append("user_oid = $" + str(len(params) + 1))
+            params.append(user_oid)
+
+        if conditions:
+            query += " WHERE " + " AND ".join(conditions)
 
         async with self.db.get_session() as conn:
             return await conn.fetch(query, *params)

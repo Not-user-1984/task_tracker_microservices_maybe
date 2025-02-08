@@ -57,7 +57,7 @@ make tests-fastapi
 
 ## Развертывание проекта
 
-1. Заполните все `example.env` в `task_meeting_service` и `user_team_service`.
+1. Заполните все `example.env` в `task_meeting_service` , `user_team_service`, `kafka-connect`.
 2. Запустите проект:
    ```sh
    docker-compose up -d

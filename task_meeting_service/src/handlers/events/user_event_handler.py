@@ -4,8 +4,6 @@ from src.schemas.user_events import UserEventSchemas
 from src.services.events.user_event_service import UserEventService
 from src.database.db import DatabaseSessionManager
 
-# from src.services.events.message_handler import MessageHandler
-
 
 class UserEventHandler:
     def __init__(self, logger: logging.Logger, db_manager: DatabaseSessionManager):
@@ -28,20 +26,20 @@ class UserEventHandler:
 
             operation = message.get("__op")
             if operation == "c":
-                self.logger.info(f"Создание обьекта: {user_assignment.user_oid}")
+                self.logger.info(f"Создание объекта: {user_assignment.user_oid}")
                 await self.user_event_service.handle_creation(user_assignment)
             elif operation == "u":
                 await self.user_event_service.handle_update(user_assignment)
-                self.logger.info(f"обновление обьекта: {user_assignment.user_oid}")
+                self.logger.info(f"Обновление объекта: {user_assignment.user_oid}")
         except Exception as e:
             self.logger.error(f"Ошибка обработки сообщения: {e}")
 
     async def handle_deletion(self, user_assignment):
         """
-        Обра��атывает удаление объекта.
+        Удаление объекта.
         """
         try:
-            self.logger.info(f"Удаление обьекта: {user_assignment}")
+            self.logger.info(f"Удаление объекта: {user_assignment}")
             await self.user_event_service.handle_deletion(user_assignment)
         except Exception as e:
             self.logger.error(f"Ошибка при обработке удаления: {e}")

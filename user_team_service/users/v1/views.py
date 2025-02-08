@@ -1,11 +1,17 @@
 from rest_framework import generics, permissions
 from users.models import User
-from users.v1.serializers import UserRegistrationSerializer, UserSerializer
+from users.v1.serializers import (
+    UserRegistrationSerializer,
+    UserSerializer,
+    UserStatusUpdateSerializer,
+    UserTeamUpdateSerializer,
+)
 
 
 class UserCreateView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
+    permission_classes = [permissions.AllowAny]
 
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -16,11 +22,11 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class UserStatusUpdateView(generics.UpdateAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserStatusUpdateSerializer
     permission_classes = [permissions.IsAdminUser]
 
 
 class UserTeamUpdateView(generics.UpdateAPIView):
     queryset = User.objects.all()
-    serializer_class = UserSerializer
+    serializer_class = UserTeamUpdateSerializer
     permission_classes = [permissions.IsAdminUser]

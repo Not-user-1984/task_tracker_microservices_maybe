@@ -49,18 +49,8 @@ services:
   debezium-connector:
     build: kafka-connect/.
     container_name: debezium-connector
-    environment:
-      BOOTSTRAP_SERVERS: kafka:9092
-      GROUP_ID: connect-cluster
-      CONFIG_STORAGE_TOPIC: connect-configs
-      OFFSET_STORAGE_TOPIC: connect-offsets
-      STATUS_STORAGE_TOPIC: connect-status
-      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      INTERNAL_KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      INTERNAL_VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
-      REST_ADVERTISED_HOST_NAME: debezium-connector
-      CONNECT_PLUGIN_PATH:  "/kafka/connect,/kafka/libs,/usr/share/java,/usr/share/confluent-hub-components"
+    env_file:
+      - ./kafka-connect/.env
     depends_on:
       - kafka
       - zookeeper
@@ -71,10 +61,6 @@ services:
     image: postgres:latest
     container_name: db_django
     restart: always
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -91,10 +77,6 @@ services:
     image: postgres:latest
     container_name: db_task
     restart: always
-    environment:
-      POSTGRES_DB: task
-      POSTGRES_USER: task_user
-      POSTGRES_PASSWORD: task_password
     ports:
       - "5433:5432"
     volumes:

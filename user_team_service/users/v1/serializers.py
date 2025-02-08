@@ -30,3 +30,15 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "username", "email", "status", "team"]
+
+
+class UserStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["status"]
+
+
+class UserTeamUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["team"]
